@@ -1,11 +1,17 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
 import Navigation from './src/navigation';
+import {PaperProvider} from 'react-native-paper';
+import {Provider as StoreProvider} from 'react-redux';
+import {store} from './src/redux/store/store';
 
 function App(): React.JSX.Element {
-  return <Navigation />;
+  return (
+    <StoreProvider store={store}>
+      <PaperProvider>
+        <Navigation />
+      </PaperProvider>
+    </StoreProvider>
+  );
 }
-
-const styles = StyleSheet.create({});
 
 export default App;
