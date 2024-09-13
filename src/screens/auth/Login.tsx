@@ -5,12 +5,68 @@ import {AuthStackParamList} from '../../navigation/AuthStackNavigator';
 import {Button, Text, TextInput} from 'react-native-paper';
 import Container from '../../components/Container';
 import {useTheme} from '@react-navigation/native';
+import {InputState} from '../../types';
+import {useAppDispatch} from '../../redux/hooks/hook';
+import {logIn} from '../../redux/thunk/auth';
+import {showMessage} from 'react-native-flash-message';
 
 type LoginScreenProps = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 const Login = ({navigation}: LoginScreenProps) => {
   const {colors} = useTheme();
+  const [isloading, setIsLoading] = useState(false);
+  const dispatch = useAppDispatch();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [emailInput, setEmailInput] = useState<InputState>({
+    value: '',
+    error: '',
+  });
+  const [passwordInput, setPasswordInput] = useState<InputState>({
+    value: '',
+    error: '',
+  });
+
+  const handleLoginSubmit = async () => {
+    try {
+      if (!emailInput.value || !passwordInput.value) {
+        return;
+      }
+      setIsLoading(true);
+
+      const result = await dispatch(
+        logIn({
+          email: emailInput.value,
+          password: passwordInput.value,
+        }),
+      );
+      const {meta, payload} = result;
+      if (meta.requestStatus === 'rejected') {
+        showMessage({
+          message: `${payload}`,
+          type: 'danger',
+          duration: 2000,
+        });
+        return;
+      }
+      setEmailInput({error: '', value: ''});
+      setPasswordInput({error: '', value: ''});
+
+      showMessage({
+        message: 'Login success',
+        type: 'success',
+        duration: 2000,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      showMessage({
+        message: 'Request failed, please try again',
+        type: 'danger',
+        duration: 2000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Container style={styles.container}>
@@ -19,8 +75,16 @@ const Login = ({navigation}: LoginScreenProps) => {
       </Text>
 
       <Text style={styles.subtitle}>Login to News Account</Text>
+
       <TextInput
         label={'Email'}
+        error={emailInput.error ? true : false}
+        value={emailInput.value}
+        onChangeText={txt =>
+          setEmailInput(obj => {
+            return {...obj, value: txt, error: ''};
+          })
+        }
         outlineColor={colors.border}
         activeOutlineColor={colors.primary}
         keyboardType="email-address"
@@ -30,11 +94,21 @@ const Login = ({navigation}: LoginScreenProps) => {
         mode="outlined"
         style={styles.textInput}
       />
+      {emailInput.error && (
+        <Text style={styles.textinputerr}>{emailInput.error}</Text>
+      )}
 
       <TextInput
         outlineColor={colors.border}
+        error={passwordInput.error ? true : false}
         activeOutlineColor={colors.primary}
         label={'Password'}
+        value={passwordInput.value}
+        onChangeText={txt =>
+          setPasswordInput(obj => {
+            return {...obj, value: txt, error: ''};
+          })
+        }
         left={<TextInput.Icon icon="lock-outline" color={colors.text} />}
         keyboardType="default"
         right={
@@ -50,7 +124,9 @@ const Login = ({navigation}: LoginScreenProps) => {
         mode="outlined"
         style={styles.textInput}
       />
-
+      {passwordInput.error && (
+        <Text style={styles.textinputerr}>{passwordInput.error}</Text>
+      )}
       <View style={styles.descCtn}>
         <Text variant="bodySmall" style={styles.desc}>
           Don't have an account?
@@ -65,7 +141,8 @@ const Login = ({navigation}: LoginScreenProps) => {
       </View>
 
       <Button
-        onPress={() => {}}
+        onPress={handleLoginSubmit}
+        loading={isloading}
         mode="contained"
         elevation={5}
         contentStyle={[styles.btnCtn, {backgroundColor: colors.primary}]}
@@ -97,6 +174,10 @@ const styles = StyleSheet.create({
     height: 52,
     width: '100%',
     backgroundColor: 'transparent',
+  },
+  textinputerr: {
+    color: '#F60D0E',
+    marginTop: 10,
   },
   textInputOutline: {
     borderRadius: 10,

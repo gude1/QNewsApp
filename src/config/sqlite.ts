@@ -1,7 +1,6 @@
 import SQLite, {SQLiteDatabase, ResultSet} from 'react-native-sqlite-storage';
-import bcrypt from 'bcryptjs';
+import CryptoJS from 'crypto-js';
 
-// Enable promise support for SQLite
 SQLite.enablePromise(true);
 
 let db: SQLiteDatabase | null = null;
@@ -18,7 +17,6 @@ const initDatabase = async (): Promise<void> => {
   }
 };
 
-// Function to initialize the users table if it doesn't exist
 export const initUsersTable = async (): Promise<void> => {
   if (!db) {
     await initDatabase();
@@ -39,20 +37,21 @@ export const initUsersTable = async (): Promise<void> => {
   }
 };
 
+const hashPassword = (password: string): string => {
+  return CryptoJS.SHA256(password).toString();
+};
+
 // Function to insert a user
 export const insertUser = async (
   email: string,
   name: string,
   plainPassword: string,
 ) => {
-  if (!db) {
-    await initDatabase();
-  }
-
   try {
-    // Hash the password before storing
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(plainPassword, salt);
+    if (!db) {
+      await initDatabase();
+    }
+    const hashedPassword = hashPassword(plainPassword);
 
     await db!.executeSql(
       'INSERT INTO Users (email, name, password) VALUES (?, ?, ?);',
@@ -73,13 +72,11 @@ export const updateUser = async (
   name: string,
   plainPassword: string,
 ): Promise<void> => {
-  if (!db) {
-    await initDatabase();
-  }
-
   try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(plainPassword, salt);
+    if (!db) {
+      await initDatabase();
+    }
+    const hashedPassword = hashPassword(plainPassword);
 
     await db!.executeSql(
       'UPDATE Users SET email = ?, name = ?, password = ? WHERE id = ?;',
@@ -95,31 +92,45 @@ export const fetchUserByEmailAndPassword = async (
   email: string,
   plainPassword: string,
 ): Promise<{id: number; email: string; name: string} | null> => {
+  try {
+    if (!db) {
+      await initDatabase();
+    }
+    const hashedPassword = hashPassword(plainPassword);
+
+    const [results]: [ResultSet] = await db!.executeSql(
+      'SELECT id, email, name FROM Users WHERE email = ? AND password = ? LIMIT 1;',
+      [email, hashedPassword],
+    );
+
+    if (results.rows.length > 0) {
+      const user = results.rows.item(0);
+      return {id: user.id, email: user.email, name: user.name};
+    } else {
+      console.log('Invalid email or password');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching user by email and password', error);
+    return null;
+  }
+};
+
+export const checkIfEmailExists = async (email: string): Promise<boolean> => {
   if (!db) {
     await initDatabase();
   }
 
   try {
     const [results]: [ResultSet] = await db!.executeSql(
-      'SELECT id, email, name, password FROM Users WHERE email = ? LIMIT 1;',
+      'SELECT 1 FROM Users WHERE email = ? LIMIT 1;',
       [email],
     );
 
-    if (results.rows.length > 0) {
-      const user = results.rows.item(0);
-      const isMatch = await bcrypt.compare(plainPassword, user.password);
-
-      if (isMatch) {
-        return {id: user.id, email: user.email, name: user.name};
-      }
-      console.log('Invalid email and password');
-      return null;
-    }
-
-    console.log('User not found');
-    return null;
+    // If any row is returned, the email exists
+    return results.rows.length > 0;
   } catch (error) {
-    console.error('Error fetching user by email and password', error);
-    return null;
+    console.error('Error checking if email exists', error);
+    return false;
   }
 };
