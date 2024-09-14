@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AuthStackParamList} from '../../navigation/AuthStackNavigator';
@@ -112,6 +112,10 @@ const Signup = ({navigation}: SignupScreenProps) => {
 
   return (
     <Container style={styles.container}>
+      <Image
+        source={require('../../assets/images/quickcheck.png')}
+        style={styles.logo}
+      />
       <Text style={styles.title} variant="headlineLarge">
         QuickCheck
       </Text>
@@ -227,6 +231,7 @@ const styles = StyleSheet.create({
   title: {
     color: '#f54d07',
     fontWeight: '600',
+    marginTop: 10,
     alignSelf: 'flex-start',
   },
   subtitle: {
@@ -273,6 +278,10 @@ const styles = StyleSheet.create({
   },
   btnCtn: {
     padding: 7,
+  },
+  logo: {
+    width: 100,
+    height: 85,
   },
 });
 export default Signup;

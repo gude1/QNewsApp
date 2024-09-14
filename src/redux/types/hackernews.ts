@@ -1,6 +1,7 @@
 export type FetchNewsAttributes = {
-  page: number;
-  hitsPerPage: number;
+  page?: number;
+  reset?: boolean;
+  hitsPerPage?: number;
 };
 
 type HighlightResult = {
@@ -21,7 +22,7 @@ type HighlightResult = {
   };
 };
 
-type Hit = {
+export type Hit = {
   _highlightResult: HighlightResult;
   author: string;
   created_at: string;

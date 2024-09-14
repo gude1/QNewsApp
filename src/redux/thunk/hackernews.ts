@@ -1,26 +1,33 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
 import hackernews from '../../config/hackernews';
-import {FetchNewsAttributes, FetchNewsResponse} from '../types/hackernews';
+import {FetchNewsAttributes} from '../types/hackernews';
+import {setNews, updateNews} from '../slice/NewsListSlice';
 
-export const fetchNews = createAsyncThunk<
-  FetchNewsResponse,
-  FetchNewsAttributes
->('quickcheck/fetchNews', async (param, thunkApi) => {
-  try {
-    const result = await hackernews.get(
-      `/search?tags=story&attributesToRetrieve=title,url,author,created_at&page=${param.page}&hitsPerPage=${param.hitsPerPage}`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
+export const fetchNews = createAsyncThunk<string, FetchNewsAttributes>(
+  'quickcheck/fetchNews',
+  async (param, thunkApi) => {
+    try {
+      const result = await hackernews.get(
+        `/search?tags=story&attributesToRetrieve=title,url,author,created_at&page=${
+          param.page || 1
+        }&hitsPerPage=${param.hitsPerPage || 10}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      },
-    );
+      );
 
-    let res = result.data as FetchNewsResponse;
+      if (param.reset) {
+        thunkApi.dispatch(setNews(result.data.hits));
+      } else {
+        thunkApi.dispatch(updateNews(result.data.hits));
+      }
 
-    return thunkApi.fulfillWithValue(res);
-  } catch (err) {
-    console.error('fetchNews', err);
-    return thunkApi.rejectWithValue('');
-  }
-});
+      return thunkApi.fulfillWithValue('News retrieved!');
+    } catch (err) {
+      console.error('fetchNews', err);
+      return thunkApi.rejectWithValue('Failed to fetch news, please try again');
+    }
+  },
+);
