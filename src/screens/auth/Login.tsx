@@ -172,6 +172,7 @@ const styles = StyleSheet.create({
   subtitle: {
     marginTop: 10,
     fontWeight: '400',
+    color: '#000',
     fontSize: 20,
     alignSelf: 'flex-start',
   },

@@ -185,10 +185,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderBottomColor: '#D3D3D3',
-    borderBottomWidth: 0.2,
+    borderBottomWidth: 1,
   },
   headerTitle: {
     fontWeight: '900',
+    color: 'black',
     fontSize: 22,
   },
   avatarIconBg: {

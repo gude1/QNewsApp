@@ -30,7 +30,7 @@ npx react-native run-android
 
 ## Download the apk via google drive
 
--[Android APK: ](https://drive.google.com/file/d/1N6kp6NwcocgqQCCykseNG1k8PO9k5fKX/view?usp=sharing)
+-[Android APK: ](https://drive.google.com/file/d/10CZjJbV1t7ff18YKVFsMQ5Fj_ybGAl10/view?usp=drive_link)
 
 ## Tech Stack
 

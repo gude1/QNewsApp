@@ -25,7 +25,7 @@ const Navigation = () => {
         BootSplash.hide({fade: true});
       }}>
       {returnNavigator()}
-      <FlashMessage statusBarHeight={45} />
+      <FlashMessage />
     </NavigationContainer>
   );
 };

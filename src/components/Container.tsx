@@ -1,5 +1,7 @@
 import {
   ColorValue,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -45,11 +47,17 @@ const Container: FC<ContainerProps> = ({
           />
         </View>
       )}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={[styles.container, {minHeight: height}, style]}>
-          {children}
-        </View>
-      </ScrollView>
+      <KeyboardAvoidingView
+        style={styles.keyboardCtn}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollview}>
+          <View style={[styles.container, {minHeight: height}, style]}>
+            {children}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -59,6 +67,9 @@ export default Container;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
+    maxWidth: 800,
+    alignSelf: 'center',
   },
   headerContainer: {
     flexDirection: 'row',
@@ -69,5 +80,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: 16,
+  },
+  keyboardCtn: {},
+  scrollview: {
+    flexGrow: 1,
   },
 });
