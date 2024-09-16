@@ -2,8 +2,9 @@
 
 QNews is a news application built using react-native typescript that allows you to read news provided by the hackernews api
 
+https://github.com/user-attachments/assets/8aad2e28-55e3-4007-ac09-aaeec4b93a1e
 
-https://github.com/user-attachments/assets/d04705e2-b97d-4272-b5c0-59ee16f36d4a
+
 
 
 ## Table of Contents
